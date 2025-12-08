@@ -53,62 +53,64 @@ if (process.env.NODE_ENV === 'development') {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '../uploads/videos');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+// Ensure uploads directory exists (skip in serverless environment)
+if (process.env.VERCEL !== '1') {
+  const uploadsDir = path.join(__dirname, '../uploads/videos');
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+
+  // Serve static files (uploaded videos) - BEFORE authentication middleware
+  app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+  // Video streaming route with range support
+  app.get('/uploads/videos/:filename', (req: Request, res: Response) => {
+    const filename = req.params.filename;
+    const filePath = path.join(__dirname, '../uploads/videos', filename);
+
+    // Check if file exists
+    if (!fs.existsSync(filePath)) {
+      res.status(404).json({
+        success: false,
+        message: 'Video not found',
+      });
+      return;
+    }
+
+    // Get file stats
+    const stat = fs.statSync(filePath);
+    const fileSize = stat.size;
+    const range = req.headers.range;
+
+    // Handle range requests for video streaming
+    if (range) {
+      const parts = range.replace(/bytes=/, '').split('-');
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+      const chunksize = end - start + 1;
+      const file = fs.createReadStream(filePath, { start, end });
+      const head = {
+        'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+        'Accept-Ranges': 'bytes',
+        'Content-Length': chunksize,
+        'Content-Type': 'video/mp4',
+        'Cache-Control': 'public, max-age=31536000',
+      };
+      res.writeHead(206, head);
+      file.pipe(res);
+    } else {
+      // Send entire file
+      const head = {
+        'Content-Length': fileSize,
+        'Content-Type': 'video/mp4',
+        'Accept-Ranges': 'bytes',
+        'Cache-Control': 'public, max-age=31536000',
+      };
+      res.writeHead(200, head);
+      fs.createReadStream(filePath).pipe(res);
+    }
+  });
 }
-
-// Serve static files (uploaded videos) - BEFORE authentication middleware
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-
-// Video streaming route with range support
-app.get('/uploads/videos/:filename', (req: Request, res: Response) => {
-  const filename = req.params.filename;
-  const filePath = path.join(__dirname, '../uploads/videos', filename);
-
-  // Check if file exists
-  if (!fs.existsSync(filePath)) {
-    res.status(404).json({
-      success: false,
-      message: 'Video not found',
-    });
-    return;
-  }
-
-  // Get file stats
-  const stat = fs.statSync(filePath);
-  const fileSize = stat.size;
-  const range = req.headers.range;
-
-  // Handle range requests for video streaming
-  if (range) {
-    const parts = range.replace(/bytes=/, '').split('-');
-    const start = parseInt(parts[0], 10);
-    const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
-    const chunksize = end - start + 1;
-    const file = fs.createReadStream(filePath, { start, end });
-    const head = {
-      'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-      'Accept-Ranges': 'bytes',
-      'Content-Length': chunksize,
-      'Content-Type': 'video/mp4',
-      'Cache-Control': 'public, max-age=31536000',
-    };
-    res.writeHead(206, head);
-    file.pipe(res);
-  } else {
-    // Send entire file
-    const head = {
-      'Content-Length': fileSize,
-      'Content-Type': 'video/mp4',
-      'Accept-Ranges': 'bytes',
-      'Cache-Control': 'public, max-age=31536000',
-    };
-    res.writeHead(200, head);
-    fs.createReadStream(filePath).pipe(res);
-  }
-});
 
 /**
  * Routes
