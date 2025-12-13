@@ -12,6 +12,7 @@ import schoolRoutes from './routes/schoolRoutes';
 import videoRoutes from './routes/videoRoutes';
 import selectionRoutes from './routes/selectionRoutes';
 import specialtyRoutes from './routes/specialtyRoutes';
+import acceptanceRoutes from './routes/acceptanceRoutes';
 
 // Import middleware
 import { errorHandler, notFound } from './middleware/errorHandler';
@@ -127,6 +128,7 @@ app.get('/', (_req, res) => {
       videos: '/api/videos',
       selection: '/api/selection',
       specialties: '/api/specialties',
+      acceptance: '/api/acceptance',
     },
   });
 });
@@ -138,6 +140,7 @@ app.use('/api/schools', schoolRoutes);
 app.use('/api/videos', videoRoutes);
 app.use('/api/selection', selectionRoutes);
 app.use('/api/specialties', specialtyRoutes);
+app.use('/api/acceptance', acceptanceRoutes);
 
 /**
  * Error handling
