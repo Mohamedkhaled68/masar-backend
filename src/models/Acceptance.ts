@@ -1,8 +1,8 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IAcceptance extends Document {
-  school: mongoose.Types.ObjectId;
-  teacher: mongoose.Types.ObjectId;
+  school: Types.ObjectId;
+  teacher: Types.ObjectId;
   acceptedAt: Date;
   status: 'pending' | 'approved' | 'rejected';
   notes?: string;

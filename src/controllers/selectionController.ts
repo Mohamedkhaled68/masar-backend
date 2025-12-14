@@ -189,7 +189,9 @@ export const removeTeacherSelection = async (
     }
 
     // Remove teacher from selected teachers
-    school.selectedTeachers = school.selectedTeachers.filter((id) => id.toString() !== teacherId);
+    school.selectedTeachers = school.selectedTeachers.filter(
+      (id: any) => id.toString() !== teacherId
+    );
     await school.save();
 
     res.status(200).json({

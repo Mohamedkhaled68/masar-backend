@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 import bcrypt from 'bcrypt';
 import { env } from '../config/env';
 
@@ -13,10 +13,10 @@ export interface ITeacher extends Document {
   academicQualification: string;
   diploma?: string;
   courses?: string[];
-  specialties: mongoose.Types.ObjectId[];
+  specialties: Types.ObjectId[];
   taughtStages: string[];
   workedInOmanBefore: boolean;
-  videos: mongoose.Types.ObjectId[];
+  videos: Types.ObjectId[];
   role: 'teacher';
   createdAt: Date;
   updatedAt: Date;

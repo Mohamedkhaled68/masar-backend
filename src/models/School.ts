@@ -1,4 +1,4 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 import bcrypt from 'bcrypt';
 import { env } from '../config/env';
 
@@ -14,7 +14,7 @@ export interface ISchool extends Document {
   flightTicketProvided: 'full' | 'half' | 'none';
   housingProvided: boolean;
   housingAllowance?: string | number;
-  selectedTeachers: mongoose.Types.ObjectId[];
+  selectedTeachers: Types.ObjectId[];
   role: 'school';
   createdAt: Date;
   updatedAt: Date;

@@ -52,7 +52,7 @@ export const uploadVideo = async (req: AuthenticatedRequest, res: Response): Pro
     }
 
     // Check if teacher has this specialty
-    const hasSpecialty = teacher.specialties.some((s) => s.toString() === specialtyId);
+    const hasSpecialty = teacher.specialties.some((s: any) => s.toString() === specialtyId);
     if (!hasSpecialty) {
       res.status(400).json({
         success: false,

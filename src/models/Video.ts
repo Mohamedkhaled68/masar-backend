@@ -1,8 +1,8 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
 export interface IVideo extends Document {
-  teacher: mongoose.Types.ObjectId;
-  specialty: mongoose.Types.ObjectId;
+  teacher: Types.ObjectId;
+  specialty: Types.ObjectId;
   title: string;
   videoUrl: string;
   uploadedAt: Date;
