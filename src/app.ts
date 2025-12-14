@@ -30,16 +30,41 @@ app.use(
 );
 
 // CORS - Allow frontend origins
+// app.use(
+//   cors({
+//     origin: [
+//       'https://masar.work',
+//       'https://api.masar.work',
+//     ],
+//     credentials: true,
+//     exposedHeaders: ['Content-Range', 'Accept-Ranges', 'Content-Length'],
+//   })
+// );
+
 app.use(
   cors({
     origin: [
       'https://masar.work',
-      'https://api.masar.work',
+      'https://www.masar.work'
     ],
     credentials: true,
-    exposedHeaders: ['Content-Range', 'Accept-Ranges', 'Content-Length'],
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'X-Requested-With'
+    ],
+    exposedHeaders: [
+      'Content-Range',
+      'Accept-Ranges',
+      'Content-Length'
+    ],
   })
 );
+
+// IMPORTANT: handle preflight explicitly
+app.options('*', cors());
+
 
 // Request logging
 if (process.env.NODE_ENV === 'development') {
