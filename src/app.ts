@@ -19,15 +19,6 @@ import { errorHandler, notFound } from './middleware/errorHandler';
 
 const app: Application = express();
 
-/**
- * Middleware
- */
-// Security headers - Configure helmet to allow video streaming
-app.use(
-  helmet({
-    crossOriginResourcePolicy: { policy: 'cross-origin' },
-  })
-);
 
 // CORS - Allow frontend origins
 const corsOptions = {
@@ -62,6 +53,18 @@ app.use(cors(corsOptions));
 
 // IMPORTANT: handle preflight explicitly
 app.options('*', cors(corsOptions));
+
+/**
+ * Middleware
+ */
+// Security headers - Configure helmet to allow video streaming
+app.use(
+  helmet({
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+  })
+);
+
+
 
 // Request logging
 if (process.env.NODE_ENV === 'development') {
