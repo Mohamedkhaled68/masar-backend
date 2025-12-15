@@ -1,6 +1,7 @@
 import { Response } from 'express';
 import { Teacher } from '../models/Teacher';
 import { AuthenticatedRequest } from '../types';
+import { ensureHttpsUrl } from '../utils/upload';
 
 /**
  * Get current authenticated teacher's profile
@@ -29,9 +30,18 @@ export const getCurrentTeacher = async (
       return;
     }
 
+    // Transform video URLs to HTTPS in production
+    const teacherData = teacher.toObject();
+    if (teacherData.videos && Array.isArray(teacherData.videos)) {
+      teacherData.videos = teacherData.videos.map((video: any) => ({
+        ...video,
+        videoUrl: ensureHttpsUrl(video.videoUrl),
+      }));
+    }
+
     res.status(200).json({
       success: true,
-      data: teacher,
+      data: teacherData,
     });
   } catch (error) {
     if (error instanceof Error) {
@@ -78,10 +88,22 @@ export const getAllTeachers = async (req: AuthenticatedRequest, res: Response): 
 
     const total = await Teacher.countDocuments(filter);
 
+    // Transform video URLs to HTTPS in production
+    const teachersData = teachers.map((teacher) => {
+      const teacherObj = teacher.toObject();
+      if (teacherObj.videos && Array.isArray(teacherObj.videos)) {
+        teacherObj.videos = teacherObj.videos.map((video: any) => ({
+          ...video,
+          videoUrl: ensureHttpsUrl(video.videoUrl),
+        }));
+      }
+      return teacherObj;
+    });
+
     res.status(200).json({
       success: true,
       data: {
-        teachers,
+        teachers: teachersData,
         pagination: {
           currentPage: page,
           totalPages: Math.ceil(total / limit),
@@ -116,9 +138,18 @@ export const getTeacherById = async (req: AuthenticatedRequest, res: Response): 
       return;
     }
 
+    // Transform video URLs to HTTPS in production
+    const teacherData = teacher.toObject();
+    if (teacherData.videos && Array.isArray(teacherData.videos)) {
+      teacherData.videos = teacherData.videos.map((video: any) => ({
+        ...video,
+        videoUrl: ensureHttpsUrl(video.videoUrl),
+      }));
+    }
+
     res.status(200).json({
       success: true,
-      data: teacher,
+      data: teacherData,
     });
   } catch (error) {
     if (error instanceof Error) {

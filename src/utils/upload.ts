@@ -56,3 +56,13 @@ export const getVideoUrl = (filename: string, req: Request): string => {
   const host = req.get('host');
   return `${protocol}://${host}/uploads/videos/${filename}`;
 };
+
+/**
+ * Transform video URL to use HTTPS in production
+ */
+export const ensureHttpsUrl = (url: string): string => {
+  if (process.env.NODE_ENV === 'production' && url.startsWith('http://')) {
+    return url.replace('http://', 'https://');
+  }
+  return url;
+};

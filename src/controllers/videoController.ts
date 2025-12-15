@@ -3,7 +3,7 @@ import { Video } from '../models/Video';
 import { Teacher } from '../models/Teacher';
 import { Specialty } from '../models/Specialty';
 import { AuthenticatedRequest } from '../types';
-import { getVideoUrl } from '../utils/upload';
+import { getVideoUrl, ensureHttpsUrl } from '../utils/upload';
 
 /**
  * Upload video for teacher
@@ -86,10 +86,14 @@ export const uploadVideo = async (req: AuthenticatedRequest, res: Response): Pro
       existingVideo.uploadedAt = new Date();
       await existingVideo.save();
 
+      // Transform video URL to HTTPS
+      const videoData = existingVideo.toObject();
+      videoData.videoUrl = ensureHttpsUrl(videoData.videoUrl);
+
       res.status(200).json({
         success: true,
         message: 'Video replaced successfully',
-        data: existingVideo,
+        data: videoData,
       });
       return;
     }
@@ -106,10 +110,14 @@ export const uploadVideo = async (req: AuthenticatedRequest, res: Response): Pro
     teacher.videos.push(video._id);
     await teacher.save();
 
+    // Transform video URL to HTTPS
+    const videoData = video.toObject();
+    videoData.videoUrl = ensureHttpsUrl(videoData.videoUrl);
+
     res.status(201).json({
       success: true,
       message: 'Video uploaded successfully',
-      data: video,
+      data: videoData,
     });
   } catch (error) {
     if (error instanceof Error) {
@@ -149,10 +157,17 @@ export const getAllVideos = async (req: AuthenticatedRequest, res: Response): Pr
 
     const total = await Video.countDocuments(filter);
 
+    // Transform video URLs to HTTPS in production
+    const videosData = videos.map((video) => {
+      const videoObj = video.toObject();
+      videoObj.videoUrl = ensureHttpsUrl(videoObj.videoUrl);
+      return videoObj;
+    });
+
     res.status(200).json({
       success: true,
       data: {
-        videos,
+        videos: videosData,
         pagination: {
           currentPage: page,
           totalPages: Math.ceil(total / limit),
@@ -189,9 +204,13 @@ export const getVideoById = async (req: AuthenticatedRequest, res: Response): Pr
       return;
     }
 
+    // Transform video URL to HTTPS
+    const videoData = video.toObject();
+    videoData.videoUrl = ensureHttpsUrl(videoData.videoUrl);
+
     res.status(200).json({
       success: true,
-      data: video,
+      data: videoData,
     });
   } catch (error) {
     if (error instanceof Error) {
@@ -230,12 +249,19 @@ export const getVideosBySpecialty = async (
       .populate('specialty')
       .sort({ uploadedAt: -1 });
 
+    // Transform video URLs to HTTPS in production
+    const videosData = videos.map((video) => {
+      const videoObj = video.toObject();
+      videoObj.videoUrl = ensureHttpsUrl(videoObj.videoUrl);
+      return videoObj;
+    });
+
     res.status(200).json({
       success: true,
       data: {
         specialty,
-        videos,
-        count: videos.length,
+        videos: videosData,
+        count: videosData.length,
       },
     });
   } catch (error) {
