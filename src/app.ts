@@ -44,9 +44,18 @@ const corsOptions = {
   },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'X-Requested-With', 
+    'Accept', 
+    'Origin',
+    'multipart/form-data',
+    'boundary'
+  ],
   exposedHeaders: ['Content-Range', 'Accept-Ranges', 'Content-Length'],
   optionsSuccessStatus: 200,
+  maxAge: 86400, // Cache preflight for 24 hours
 };
 
 app.use(cors(corsOptions));
