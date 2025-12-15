@@ -19,6 +19,9 @@ import { errorHandler, notFound } from './middleware/errorHandler';
 
 const app: Application = express();
 
+// Trust proxy - needed for proper protocol detection behind proxies/load balancers
+app.set('trust proxy', true);
+
 // CORS - Allow frontend origins
 const corsOptions = {
   origin: function (

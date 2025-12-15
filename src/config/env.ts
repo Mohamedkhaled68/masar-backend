@@ -14,4 +14,5 @@ export const env = {
   ADMIN_PASSWORD: process.env.ADMIN_PASSWORD || 'Admin@123',
   ADMIN_WHATSAPP_NUMBER: process.env.ADMIN_WHATSAPP_NUMBER || '+96812345678',
   NODE_ENV: process.env.NODE_ENV || 'development',
+  BASE_URL: process.env.BASE_URL, // Optional: Override base URL (e.g., https://api.masar.work)
 };

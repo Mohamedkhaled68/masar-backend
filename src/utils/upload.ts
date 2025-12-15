@@ -51,5 +51,8 @@ export const uploadVideo = multer({
  * Get the public URL for an uploaded video
  */
 export const getVideoUrl = (filename: string, req: Request): string => {
-  return `${req.protocol}://${req.get('host')}/uploads/videos/${filename}`;
+  // Force HTTPS in production, or use the detected protocol (considering x-forwarded-proto)
+  const protocol = process.env.NODE_ENV === 'production' ? 'https' : req.protocol || 'http';
+  const host = req.get('host');
+  return `${protocol}://${host}/uploads/videos/${filename}`;
 };
