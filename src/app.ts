@@ -30,41 +30,38 @@ app.use(
 );
 
 // CORS - Allow frontend origins
-// app.use(
-//   cors({
-//     origin: [
-//       'https://masar.work',
-//       'https://api.masar.work',
-//     ],
-//     credentials: true,
-//     exposedHeaders: ['Content-Range', 'Accept-Ranges', 'Content-Length'],
-//   })
-// );
+const corsOptions = {
+  origin: function (
+    origin: string | undefined,
+    callback: (err: Error | null, allow?: boolean) => void
+  ) {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
 
-app.use(
-  cors({
-    origin: [
+    const allowedOrigins = [
       'https://masar.work',
-      'https://www.masar.work'
-    ],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: [
-      'Content-Type',
-      'Authorization',
-      'X-Requested-With'
-    ],
-    exposedHeaders: [
-      'Content-Range',
-      'Accept-Ranges',
-      'Content-Length'
-    ],
-  })
-);
+      'https://www.masar.work',
+      'http://localhost:3000',
+      'http://localhost:5173',
+    ];
+
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept', 'Origin'],
+  exposedHeaders: ['Content-Range', 'Accept-Ranges', 'Content-Length'],
+  optionsSuccessStatus: 200,
+};
+
+app.use(cors(corsOptions));
 
 // IMPORTANT: handle preflight explicitly
-app.options('*', cors());
-
+app.options('*', cors(corsOptions));
 
 // Request logging
 if (process.env.NODE_ENV === 'development') {
