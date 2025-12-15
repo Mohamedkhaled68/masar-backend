@@ -19,7 +19,6 @@ import { errorHandler, notFound } from './middleware/errorHandler';
 
 const app: Application = express();
 
-
 // CORS - Allow frontend origins
 const corsOptions = {
   origin: function (
@@ -45,13 +44,13 @@ const corsOptions = {
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: [
-    'Content-Type', 
-    'Authorization', 
-    'X-Requested-With', 
-    'Accept', 
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With',
+    'Accept',
     'Origin',
     'multipart/form-data',
-    'boundary'
+    'boundary',
   ],
   exposedHeaders: ['Content-Range', 'Accept-Ranges', 'Content-Length'],
   optionsSuccessStatus: 200,
@@ -72,8 +71,6 @@ app.use(
     crossOriginResourcePolicy: { policy: 'cross-origin' },
   })
 );
-
-
 
 // Request logging
 if (process.env.NODE_ENV === 'development') {
