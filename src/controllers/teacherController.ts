@@ -14,11 +14,11 @@ export const searchTeachers = async (req: AuthenticatedRequest, res: Response): 
     const query: any = {};
 
     // Search by name, phone, or national ID
-    if (search && typeof search === 'string') {
+    if (search && typeof search === 'string' && search.trim().length > 0) {
       query.$or = [
-        { fullName: { $regex: search, $options: 'i' } },
-        { phoneNumber: { $regex: search, $options: 'i' } },
-        { nationalID: { $regex: search, $options: 'i' } },
+        { fullName: { $regex: search.trim(), $options: 'i' } },
+        { phoneNumber: { $regex: search.trim(), $options: 'i' } },
+        { nationalID: { $regex: search.trim(), $options: 'i' } },
       ];
     }
 
@@ -61,7 +61,7 @@ export const searchTeachers = async (req: AuthenticatedRequest, res: Response): 
       if (teacherObj.videos && Array.isArray(teacherObj.videos)) {
         teacherObj.videos = teacherObj.videos.map((video: any) => ({
           ...video,
-          videoUrl: ensureHttpsUrl(video.videoUrl),
+          videoUrl: video.videoUrl ? ensureHttpsUrl(video.videoUrl) : '',
         }));
       }
       return teacherObj;
@@ -122,7 +122,7 @@ export const getCurrentTeacher = async (
     if (teacherData.videos && Array.isArray(teacherData.videos)) {
       teacherData.videos = teacherData.videos.map((video: any) => ({
         ...video,
-        videoUrl: ensureHttpsUrl(video.videoUrl),
+        videoUrl: video.videoUrl ? ensureHttpsUrl(video.videoUrl) : '',
       }));
     }
 
@@ -186,7 +186,7 @@ export const getAllTeachers = async (req: AuthenticatedRequest, res: Response): 
       if (teacherObj.videos && Array.isArray(teacherObj.videos)) {
         teacherObj.videos = teacherObj.videos.map((video: any) => ({
           ...video,
-          videoUrl: ensureHttpsUrl(video.videoUrl),
+          videoUrl: video.videoUrl ? ensureHttpsUrl(video.videoUrl) : '',
         }));
       }
       return teacherObj;
@@ -235,7 +235,7 @@ export const getTeacherById = async (req: AuthenticatedRequest, res: Response): 
     if (teacherData.videos && Array.isArray(teacherData.videos)) {
       teacherData.videos = teacherData.videos.map((video: any) => ({
         ...video,
-        videoUrl: ensureHttpsUrl(video.videoUrl),
+        videoUrl: video.videoUrl ? ensureHttpsUrl(video.videoUrl) : '',
       }));
     }
 
