@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import {
+  searchTeachers,
   getAllTeachers,
   getCurrentTeacher,
   getTeacherById,
@@ -10,6 +11,11 @@ import { verifyToken } from '../middleware/authMiddleware';
 import { requireRole, isAdmin } from '../middleware/roleMiddleware';
 
 const router = Router();
+
+/**
+ * Search teachers (must be before /:id route)
+ */
+router.get('/search', verifyToken, searchTeachers);
 
 /**
  * Get current authenticated teacher (must be before /:id route)

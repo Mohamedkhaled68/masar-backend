@@ -4,6 +4,93 @@ import { AuthenticatedRequest } from '../types';
 import { ensureHttpsUrl } from '../utils/upload';
 
 /**
+ * Search teachers by name, phone, or national ID with filtering
+ * GET /teachers/search
+ */
+export const searchTeachers = async (req: AuthenticatedRequest, res: Response): Promise<void> => {
+  try {
+    const { search, specialtyId, page = '1', limit = '10' } = req.query;
+
+    const query: any = {};
+
+    // Search by name, phone, or national ID
+    if (search && typeof search === 'string') {
+      query.$or = [
+        { fullName: { $regex: search, $options: 'i' } },
+        { phoneNumber: { $regex: search, $options: 'i' } },
+        { nationalID: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    // Filter by specialty
+    if (specialtyId && typeof specialtyId === 'string') {
+      query.specialties = specialtyId;
+    }
+
+    // Filter by stage
+    if (req.query.stage) {
+      query.taughtStages = req.query.stage;
+    }
+
+    // Filter by gender
+    if (req.query.gender) {
+      query.gender = req.query.gender;
+    }
+
+    // Filter by worked in Oman before
+    if (req.query.workedInOmanBefore !== undefined) {
+      query.workedInOmanBefore = req.query.workedInOmanBefore === 'true';
+    }
+
+    const pageNum = parseInt(page as string);
+    const limitNum = parseInt(limit as string);
+    const skip = (pageNum - 1) * limitNum;
+
+    const teachers = await Teacher.find(query)
+      .populate('specialties', 'name nameAr')
+      .select('-password -refreshToken')
+      .skip(skip)
+      .limit(limitNum)
+      .sort({ createdAt: -1 });
+
+    const total = await Teacher.countDocuments(query);
+
+    // Transform video URLs to HTTPS in production
+    const teachersData = teachers.map((teacher) => {
+      const teacherObj = teacher.toObject();
+      if (teacherObj.videos && Array.isArray(teacherObj.videos)) {
+        teacherObj.videos = teacherObj.videos.map((video: any) => ({
+          ...video,
+          videoUrl: ensureHttpsUrl(video.videoUrl),
+        }));
+      }
+      return teacherObj;
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        teachers: teachersData,
+        pagination: {
+          currentPage: pageNum,
+          totalPages: Math.ceil(total / limitNum),
+          totalItems: total,
+          itemsPerPage: limitNum,
+        },
+      },
+    });
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).json({
+        success: false,
+        message: 'Failed to search teachers',
+        error: error.message,
+      });
+    }
+  }
+};
+
+/**
  * Get current authenticated teacher's profile
  * GET /teachers/me
  */
