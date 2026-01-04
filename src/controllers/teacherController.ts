@@ -153,6 +153,11 @@ export const getAllTeachers = async (req: AuthenticatedRequest, res: Response): 
     // Build filter object
     const filter: any = {};
 
+    // Filter by specialty
+    if (req.query.specialtyId) {
+      filter.specialties = req.query.specialtyId;
+    }
+
     if (req.query.stage) {
       filter.taughtStages = req.query.stage;
     }
