@@ -50,7 +50,7 @@ export const acceptTeacher = async (req: AuthenticatedRequest, res: Response): P
       return;
     }
 
-    if (school.selectedTeachers.some((selected) => selected.id === teacherId)) {
+    if (school.selectedTeachers.some((selected: any) => selected.id === teacherId)) {
       res.status(400).json({
         success: false,
         message: 'Teacher is already selected by this school',
@@ -155,10 +155,10 @@ export const getSchoolSelections = async (
           id: school.id,
           name: school.schoolName,
         },
-        selectedTeachers: school.selectedTeachers.map((teacher) => ({
+        selectedTeachers: school.selectedTeachers.map((teacher: any) => ({
           ...teacher,
-          specialties: teacher.specialties.map((specialty) => specialty.id),
-          videos: teacher.videos.map((video) => video.id),
+          specialties: teacher.specialties.map((specialty: any) => specialty.id),
+          videos: teacher.videos.map((video: any) => video.id),
         })),
       },
     });

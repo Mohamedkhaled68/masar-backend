@@ -50,7 +50,7 @@ export const uploadVideo = async (req: AuthenticatedRequest, res: Response): Pro
       return;
     }
 
-    const hasSpecialty = teacher.specialties.some((s) => s.id === specialtyId);
+    const hasSpecialty = teacher.specialties.some((s: any) => s.id === specialtyId);
     if (!hasSpecialty) {
       res.status(400).json({
         success: false,
@@ -185,7 +185,7 @@ export const getAllVideos = async (req: AuthenticatedRequest, res: Response): Pr
 
     const total = await prisma.video.count({ where });
 
-    const videosData = videos.map((video) => {
+    const videosData = videos.map((video: any) => {
       const videoObj: any = {
         ...video,
         videoUrl: ensureHttpsUrl(video.videoUrl),
@@ -356,7 +356,7 @@ export const getVideosBySpecialty = async (
       },
     });
 
-    const videosData = videos.map((video) => {
+    const videosData = videos.map((video: any) => {
       const videoObj: any = {
         ...video,
         videoUrl: ensureHttpsUrl(video.videoUrl),

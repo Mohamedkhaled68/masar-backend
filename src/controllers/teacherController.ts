@@ -285,8 +285,8 @@ export const updateTeacher = async (req: AuthenticatedRequest, res: Response): P
     const { password, ...teacherData } = teacher;
     const responseData = {
       ...teacherData,
-      specialties: teacher.specialties.map((specialty) => specialty.id),
-      videos: teacher.videos.map((video) => video.id),
+      specialties: teacher.specialties.map((specialty: any) => specialty.id),
+      videos: teacher.videos.map((video: any) => video.id),
     };
 
     res.status(200).json({
