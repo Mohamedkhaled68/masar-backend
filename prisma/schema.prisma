@@ -1,0 +1,138 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  admin
+  school
+  teacher
+}
+
+enum AcceptanceStatus {
+  pending
+  approved
+  rejected
+}
+
+enum FlightTicketProvided {
+  full
+  half
+  none
+}
+
+enum Gender {
+  male
+  female
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(admin)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model School {
+  id                   String               @id @default(uuid())
+  managerName          String
+  whatsappPhone        String               @unique
+  password             String
+  schoolName           String
+  schoolLocation       String
+  stagesNeeded         String[]
+  specialtiesNeeded    String[]
+  expectedSalaryRange  String
+  flightTicketProvided FlightTicketProvided
+  housingProvided      Boolean              @default(false)
+  housingAllowance     String?
+  role                 Role                 @default(school)
+
+  selectedTeachers Teacher[]    @relation("SchoolSelectedTeachers")
+  acceptances      Acceptance[]
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+}
+
+model Teacher {
+  id                    String   @id @default(uuid())
+  fullName              String
+  phoneNumber           String   @unique
+  password              String
+  nationalID            String   @unique
+  gender                Gender
+  age                   Int
+  address               String
+  academicQualification String
+  diploma               String?
+  courses               String[] @default([])
+  taughtStages          String[]
+  workedInOmanBefore    Boolean  @default(false)
+  role                  Role     @default(teacher)
+
+  specialties       Specialty[]  @relation("TeacherSpecialties")
+  videos            Video[]
+  selectedBySchools School[]     @relation("SchoolSelectedTeachers")
+  acceptances       Acceptance[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Specialty {
+  id          String  @id @default(uuid())
+  name        String  @unique
+  nameAr      String?
+  description String?
+  isActive    Boolean @default(true)
+
+  teachers Teacher[] @relation("TeacherSpecialties")
+  videos   Video[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Acceptance {
+  id         String           @id @default(uuid())
+  status     AcceptanceStatus @default(pending)
+  notes      String?
+  acceptedAt DateTime         @default(now())
+
+  schoolId  String
+  school    School   @relation(fields: [schoolId], references: [id], onDelete: Cascade)
+  teacherId String
+  teacher   Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([schoolId, teacherId])
+  @@index([status])
+  @@index([acceptedAt(sort: Desc)])
+}
+
+model Video {
+  id         String   @id @default(uuid())
+  title      String
+  videoUrl   String
+  uploadedAt DateTime @default(now())
+
+  teacherId String
+  teacher   Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  specialtyId String
+  specialty   Specialty @relation(fields: [specialtyId], references: [id], onDelete: Restrict)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([teacherId])
+  @@index([uploadedAt(sort: Desc)])
+}
