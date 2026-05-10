@@ -2,6 +2,8 @@ import app from './app.js';
 import { connectDB } from './config/db.js';
 import { env } from './config/env.js';
 
+console.log('DATABASE_URL:', process.env.DATABASE_URL);
+
 const startServer = async (): Promise<void> => {
   try {
     await connectDB();
